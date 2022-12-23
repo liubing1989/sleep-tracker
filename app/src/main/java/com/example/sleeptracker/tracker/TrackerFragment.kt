@@ -1,13 +1,12 @@
 package com.example.sleeptracker.tracker
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.sleeptracker.R
 import com.example.sleeptracker.database.SleepDatabase
 import com.example.sleeptracker.databinding.SleepTrackerBinding
 
@@ -41,8 +40,15 @@ class TrackerFragment : Fragment() {
         binding.clearButton.setOnClickListener {
             trackerViewModel.onClear()
         }
-        trackerViewModel.nightsString.observe(viewLifecycleOwner){
+        trackerViewModel.nightsString.observe(viewLifecycleOwner) {
             binding.textview.text = it
+        }
+        trackerViewModel.navigateToSleepQuality.observe(viewLifecycleOwner) { night ->
+            night?.let {
+                this.findNavController().navigate(
+                    TrackerFragmentDirections.actionTrackerFragmentToSleepQualityFragment(night.nightId))
+                trackerViewModel.doneNavigating()
+            }
         }
         return binding.root
     }
