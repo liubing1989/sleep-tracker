@@ -1,12 +1,13 @@
 package com.example.sleeptracker.sleepquality
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.sleeptracker.R
+import com.example.sleeptracker.database.SleepDatabase
 import com.example.sleeptracker.databinding.SleepQualityBinding
 
 
@@ -15,23 +16,28 @@ import com.example.sleeptracker.databinding.SleepQualityBinding
  */
 class SleepQualityFragment : Fragment() {
 
-    private var _binding: SleepQualityBinding? = null
-
-    private val binding get() = _binding!!
-
+    private lateinit var binding: SleepQualityBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        _binding = SleepQualityBinding.inflate(inflater, container, false)
+        savedInstanceState: Bundle?,
+    ): View {
+        binding = SleepQualityBinding.inflate(inflater, container, false)
         val application = requireNotNull(this.activity).application
+        val args = SleepQualityFragmentArgs.fromBundle(arguments!!)
+        val dataSource = SleepDatabase.getInstance(application).sleepDatabaseDao()
+        val viewModelFactory = SleepQualityViewModelFactory(args.sleepNightKey, dataSource)
+        val sleepQualityViewModel =
+            ViewModelProvider(this, viewModelFactory)[SleepQualityViewModel::class.java]
+        sleepQualityViewModel.navigateToSleepTracker.observe(viewLifecycleOwner) {
+            if (it == true) {
+                this.findNavController()
+                    .navigate(SleepQualityFragmentDirections.actionSleepQualityFragmentToTrackerFragment())
+                sleepQualityViewModel.doneNavigating()
+            }
+        }
+        binding.sleepQualityViewModel =sleepQualityViewModel
+        binding.lifecycleOwner = this
         return binding.root
 
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
