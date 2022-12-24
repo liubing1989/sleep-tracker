@@ -27,6 +27,11 @@ class TrackerFragment : Fragment() {
         val dataSource = SleepDatabase.getInstance(application).sleepDatabaseDao()
         val trackerFactory = TrackerViewModelFactory(dataSource, application)
         val trackerViewModel = ViewModelProvider(this, trackerFactory)[TrackerViewModel::class.java]
+        val adapter = SleepNightAdapter()
+        binding.sleepList.adapter = adapter
+        trackerViewModel.nights.observe(viewLifecycleOwner) {
+            it?.let { adapter.submitList(it) }
+        }
         binding.sleepTrackerViewModel = trackerViewModel
         trackerViewModel.showSnackBarEvent.observe(viewLifecycleOwner) {
             if (it == true) { // Observed state is true.

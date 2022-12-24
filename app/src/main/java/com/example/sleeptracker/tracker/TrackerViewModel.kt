@@ -38,7 +38,7 @@ class TrackerViewModel(
         _navigateToSleepQuality.value = null
     }
 
-    private var nights = database.getAllNights()
+     var nights = database.getAllNights()
     val nightsString = Transformations.map(nights) { nights ->
         formatNights(nights, application.resources)
     }
